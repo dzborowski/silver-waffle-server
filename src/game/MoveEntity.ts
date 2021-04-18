@@ -1,4 +1,12 @@
-import {BaseEntity, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from "typeorm";
 import {UserEntity} from "../auth/UserEntity";
 
 @Entity({name: "move"})
@@ -6,7 +14,10 @@ export class MoveEntity extends BaseEntity {
     @PrimaryGeneratedColumn("uuid")
     public id: string;
 
-    @ManyToOne(() => UserEntity)
+    @Column({type: "int"})
+    public x:number;
+
+    @ManyToOne(() => UserEntity, (user) => user.moves)
     public user: UserEntity;
 
     @CreateDateColumn({type: "timestamp"})
