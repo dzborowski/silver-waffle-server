@@ -1,11 +1,11 @@
 import {
-    BaseEntity,
-    Column,
-    CreateDateColumn,
-    Entity,
-    OneToMany,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import {GameEntity} from "../game/GameEntity";
 import {MoveEntity} from "../game/MoveEntity";
