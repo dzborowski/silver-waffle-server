@@ -1,6 +1,6 @@
 import {AuthTokenType} from "./AuthTokenType";
 
 export interface IAuthTokenPayload {
-    userId:string;
+    userId: string;
     type: AuthTokenType;
 }

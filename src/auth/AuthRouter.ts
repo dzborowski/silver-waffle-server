@@ -7,24 +7,25 @@ import {AuthService} from "./AuthService";
 
 export const AuthRouter = Router();
 
-AuthRouter
-    .route("/register")
-    .post(celebrate({
-      body: AuthSchema.registerUserBody,
-    }), asyncHandler(AuthController.register));
+AuthRouter.route("/register").post(
+    celebrate({
+        body: AuthSchema.registerUserBody,
+    }),
+    asyncHandler(AuthController.register)
+);
 
-AuthRouter
-    .route("/login")
-    .post(celebrate({
-      body: AuthSchema.loginUserBody,
-    }), asyncHandler(AuthController.login));
+AuthRouter.route("/login").post(
+    celebrate({
+        body: AuthSchema.loginUserBody,
+    }),
+    asyncHandler(AuthController.login)
+);
 
-AuthRouter
-    .route("/refresh")
-    .post(celebrate({
-      body: AuthSchema.refreshUserBody,
-    }), asyncHandler(AuthController.refresh));
+AuthRouter.route("/refresh").post(
+    celebrate({
+        body: AuthSchema.refreshUserBody,
+    }),
+    asyncHandler(AuthController.refresh)
+);
 
-AuthRouter
-    .route("/logged-user")
-    .get(asyncHandler(AuthService.verifyAuth), asyncHandler(AuthController.getLoggedUser));
+AuthRouter.route("/logged-user").get(asyncHandler(AuthService.verifyAuth), asyncHandler(AuthController.getLoggedUser));

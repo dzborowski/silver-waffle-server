@@ -13,21 +13,21 @@ require("dotenv").config();
 
 createConnection(ormConfig)
     .then(() => {
-      const app = express();
+        const app = express();
 
-      app.use(cors());
-      app.use(helmet());
-      app.use(bodyParser.json());
-      app.use(bodyParser.urlencoded({extended: false}));
+        app.use(cors());
+        app.use(helmet());
+        app.use(bodyParser.json());
+        app.use(bodyParser.urlencoded({extended: false}));
 
-      app.use("/api/auth", AuthRouter);
+        app.use("/api/auth", AuthRouter);
 
-      app.use(ErrorHandler.handleError);
+        app.use(ErrorHandler.handleError);
 
-      const appPort = AppConfig.getAppPort();
+        const appPort = AppConfig.getAppPort();
 
-      app.listen(appPort, () => {
-        console.log(`App listening at http://localhost:${appPort}`);
-      });
+        app.listen(appPort, () => {
+            console.log(`App listening at http://localhost:${appPort}`);
+        });
     })
     .catch((err) => console.error(`Database connection error: ${err}`));

@@ -1,16 +1,13 @@
 {
-  "compilerOptions": {
-    "lib": [
-      "esnext",
-      "DOM"
-    ],
-    "target": "esnext",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "rootDir": "src",
-    "outDir": "build",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
-  },
-  "include": ["./src", "./types"]
+    "compilerOptions": {
+        "lib": ["esnext", "DOM"],
+        "target": "esnext",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "rootDir": "src",
+        "outDir": "build",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
+    },
+    "include": ["./src", "./types"]
 }

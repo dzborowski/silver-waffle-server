@@ -1,7 +1,7 @@
 entity: user
 items:
-  user:
-    firstName: "John"
-    lastName: "Doe"
-    email: "john.doe@email.com"
-    password: "1qaz@WSX"
+    user:
+        firstName: "John"
+        lastName: "Doe"
+        email: "john.doe@email.com"
+        password: "1qaz@WSX"

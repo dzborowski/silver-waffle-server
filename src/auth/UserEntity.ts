@@ -1,11 +1,11 @@
 import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from "typeorm";
 import {GameEntity} from "../game/GameEntity";
 import {MoveEntity} from "../game/MoveEntity";
@@ -22,7 +22,7 @@ export class UserEntity extends BaseEntity {
     public lastName: string;
 
     @Column({type: "varchar", length: 255, unique: true})
-    public email: string
+    public email: string;
 
     @Column({type: "varchar", length: 255})
     public password: string;

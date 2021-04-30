@@ -1,16 +1,16 @@
 import {HttpCode} from "./HttpCode";
 
 interface IApiErrorData {
-    message:string;
-    httpCode: HttpCode
+    message: string;
+    httpCode: HttpCode;
 }
 
 export class ApiError extends Error {
     public errorData: IApiErrorData;
 
-    constructor(errorData:IApiErrorData) {
-      super(errorData.message);
+    constructor(errorData: IApiErrorData) {
+        super(errorData.message);
 
-      this.errorData = errorData;
+        this.errorData = errorData;
     }
 }
