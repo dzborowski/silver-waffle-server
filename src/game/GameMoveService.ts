@@ -5,6 +5,7 @@ import {getManager} from "typeorm";
 import {GameEntity} from "./data/GameEntity";
 import {MoveEntity} from "./data/MoveEntity";
 import {UserEntity} from "../auth/UserEntity";
+import {GameStateCalculator} from "./GameStateCalculator";
 
 export class GameMoveService {
     protected gameId: string;
@@ -30,6 +31,9 @@ export class GameMoveService {
         move.user = await manager.findOneOrFail(UserEntity, this.userId);
         move.position = this.movePosition;
         await manager.save(move);
+
+        const gameStateCalculator = new GameStateCalculator(this.gameId);
+        await gameStateCalculator.recalculateGameState();
     }
 
     protected async canMakeMove(): Promise<boolean> {

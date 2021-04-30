@@ -4,4 +4,6 @@ export class GameStateCalculator {
     public constructor(gameId: string) {
         this.gameId = gameId;
     }
+
+    public async recalculateGameState(): Promise<void> {}
 }
