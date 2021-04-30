@@ -7,7 +7,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import {UserEntity} from "../auth/UserEntity";
+import {UserEntity} from "../../auth/UserEntity";
 import {GameEntity} from "./GameEntity";
 
 @Entity({name: "move"})

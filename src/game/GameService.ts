@@ -2,7 +2,9 @@ import {getManager} from "typeorm";
 import {UserEntity} from "../auth/UserEntity";
 import {ApiError} from "../common/ApiError";
 import {HttpCode} from "../common/HttpCode";
-import {GameEntity} from "./GameEntity";
+import {GameEntity} from "./data/GameEntity";
+import {MoveEntity} from "./data/MoveEntity";
+import {GameState} from "./GameState";
 
 export class GameService {
     protected gameId: string;
@@ -33,7 +35,8 @@ export class GameService {
     }
 
     public async isGameAlreadyFinished(): Promise<boolean> {
-        return false; // todo
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        return game.state === GameState.FINISHED;
     }
 
     public async isUserBelongsToGame(userId: string): Promise<boolean> {
@@ -43,6 +46,11 @@ export class GameService {
 
     public async getStartingPlayer(): Promise<UserEntity> {
         const game = await getManager().findOneOrFail(GameEntity, this.gameId);
-        return game.oponent;
+        return game.oponent; // todo optionally starting player can be random
+    }
+
+    public async getChronologicallyCreatedMoves(): Promise<MoveEntity[]> {
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        return game.moves; // todo get sorted by db
     }
 }

@@ -7,8 +7,8 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import {GameEntity} from "../game/GameEntity";
-import {MoveEntity} from "../game/MoveEntity";
+import {GameEntity} from "../game/data/GameEntity";
+import {MoveEntity} from "../game/data/MoveEntity";
 
 @Entity({name: "user"})
 export class UserEntity extends BaseEntity {

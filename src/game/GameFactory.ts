@@ -1,5 +1,5 @@
 import {getManager} from "typeorm";
-import {GameEntity} from "./GameEntity";
+import {GameEntity} from "./data/GameEntity";
 import {UserEntity} from "../auth/UserEntity";
 
 export class GameFactory {

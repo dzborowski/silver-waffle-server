@@ -2,8 +2,8 @@ import {ApiError} from "../common/ApiError";
 import {HttpCode} from "../common/HttpCode";
 import {GameService} from "./GameService";
 import {getManager} from "typeorm";
-import {GameEntity} from "./GameEntity";
-import {MoveEntity} from "./MoveEntity";
+import {GameEntity} from "./data/GameEntity";
+import {MoveEntity} from "./data/MoveEntity";
 import {UserEntity} from "../auth/UserEntity";
 
 export class GameMoveService {
@@ -43,8 +43,16 @@ export class GameMoveService {
     }
 
     protected async isUserTurn(): Promise<boolean> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
-        return true; // todo
+        const gameService = new GameService(this.gameId);
+        const [lastMove] = await gameService.getChronologicallyCreatedMoves();
+
+        if (lastMove) {
+            return lastMove.user.id !== this.userId;
+        }
+
+        const startingPlayer = await gameService.getStartingPlayer();
+
+        return startingPlayer.id === this.userId;
     }
 
     protected async isMoveMadeToCorrectPlace(): Promise<boolean> {

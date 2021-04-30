@@ -8,8 +8,9 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import {UserEntity} from "../auth/UserEntity";
+import {UserEntity} from "../../auth/UserEntity";
 import {MoveEntity} from "./MoveEntity";
+import {GameState} from "../GameState";
 
 @Entity({name: "game"})
 export class GameEntity extends BaseEntity {
@@ -19,6 +20,9 @@ export class GameEntity extends BaseEntity {
     @Column({type: "int"})
     public size: number;
 
+    @Column({type: "enum", enum: GameState, default: GameState.CREATED})
+    public state: GameState;
+
     @ManyToOne(() => UserEntity, (user) => user.gamesAsCreator)
     public creator: UserEntity;
 
@@ -27,6 +31,9 @@ export class GameEntity extends BaseEntity {
 
     @OneToMany(() => MoveEntity, (move) => move.game)
     public moves: MoveEntity[];
+
+    @ManyToOne(() => UserEntity)
+    public winner: UserEntity;
 
     @CreateDateColumn({type: "timestamp"})
     public createdAt: Date;
