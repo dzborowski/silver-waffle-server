@@ -4,10 +4,12 @@ import {
     CreateDateColumn,
     Entity,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
 import {UserEntity} from "../auth/UserEntity";
+import {MoveEntity} from "./MoveEntity";
 
 @Entity({name: "game"})
 export class GameEntity extends BaseEntity {
@@ -22,6 +24,9 @@ export class GameEntity extends BaseEntity {
 
     @ManyToOne(() => UserEntity, (user) => user.gamesAsOponent)
     public oponent: UserEntity;
+
+    @OneToMany(() => MoveEntity, (move) => move.game)
+    public moves: MoveEntity[];
 
     @CreateDateColumn({type: "timestamp"})
     public createdAt: Date;

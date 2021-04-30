@@ -5,22 +5,19 @@ import {HttpCode} from "../common/HttpCode";
 import {GameEntity} from "./GameEntity";
 
 export class GameService {
-    public async crateGame(creatorId: string, gameSize: number): Promise<void> {
-        const manager = getManager();
-        const game = new GameEntity();
+    protected gameId: string;
 
-        game.size = gameSize;
-        game.creator = await manager.findOneOrFail(UserEntity, {id: creatorId});
-        await manager.save(game);
+    public constructor(gameId: string) {
+        this.gameId = gameId;
     }
 
-    public async joinGame(gameId: string, oponentId: string): Promise<void> {
+    public async joinGame(oponentId: string): Promise<void> {
         const manager = getManager();
 
-        const game = await manager.findOneOrFail(GameEntity, {id: gameId});
-        const oponent = await manager.findOneOrFail(UserEntity, {id: oponentId});
+        const game = await manager.findOneOrFail(GameEntity, this.gameId);
+        const oponent = await manager.findOneOrFail(UserEntity, oponentId);
 
-        if (await this.isGameAlreadyFinished(gameId)) {
+        if (await this.isGameAlreadyFinished()) {
             throw new ApiError({message: "Cannot join to finished game", httpCode: HttpCode.BAD_REQUEST});
         }
 
@@ -35,7 +32,17 @@ export class GameService {
         await manager.save(game);
     }
 
-    public async isGameAlreadyFinished(gameId: string): Promise<boolean> {
+    public async isGameAlreadyFinished(): Promise<boolean> {
         return false; // todo
+    }
+
+    public async isUserBelongsToGame(userId: string): Promise<boolean> {
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        return game.creator.id === userId || game.oponent?.id === userId;
+    }
+
+    public async getStartingPlayer(): Promise<UserEntity> {
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        return game.oponent;
     }
 }

@@ -1,18 +1,20 @@
 import {ApiError} from "../common/ApiError";
 import {HttpCode} from "../common/HttpCode";
 import {GameService} from "./GameService";
-import {getRepository} from "typeorm";
+import {getManager} from "typeorm";
 import {GameEntity} from "./GameEntity";
+import {MoveEntity} from "./MoveEntity";
+import {UserEntity} from "../auth/UserEntity";
 
 export class GameMoveService {
     protected gameId: string;
     protected userId: string;
-    protected x: number;
+    protected movePosition: number;
 
-    public constructor(gameId: string, userId: string, x: number) {
+    public constructor(gameId: string, userId: string, movePosition: number) {
         this.gameId = gameId;
         this.userId = userId;
-        this.x = x;
+        this.movePosition = movePosition;
     }
 
     public async move(): Promise<void> {
@@ -21,24 +23,33 @@ export class GameMoveService {
         if (!canMakeMove) {
             throw new ApiError({message: "Cannot make move", httpCode: HttpCode.BAD_REQUEST});
         }
+
+        const manager = getManager();
+        const move = new MoveEntity();
+
+        move.user = await manager.findOneOrFail(UserEntity, this.userId);
+        move.position = this.movePosition;
+        await manager.save(move);
     }
 
     protected async canMakeMove(): Promise<boolean> {
-        const isGameAlreadyFinished = await new GameService().isGameAlreadyFinished(this.gameId);
+        const gameService = new GameService(this.gameId);
+        const isGameAlreadyFinished = await gameService.isGameAlreadyFinished();
+        const isUserBelongsToGame = await gameService.isUserBelongsToGame(this.userId);
         const isUserTurn = await this.isUserTurn();
         const isMoveMadeToCorrectPlace = await this.isMoveMadeToCorrectPlace();
 
-        return !isGameAlreadyFinished && isUserTurn && isMoveMadeToCorrectPlace;
+        return !isGameAlreadyFinished && isUserBelongsToGame && isUserTurn && isMoveMadeToCorrectPlace;
     }
 
     protected async isUserTurn(): Promise<boolean> {
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
         return true; // todo
     }
 
     protected async isMoveMadeToCorrectPlace(): Promise<boolean> {
-        const gameRepository = getRepository(GameEntity);
-        const game = await gameRepository.findOne({id: this.gameId});
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
 
-        return this.x >= 0 && this.x < game.size ** 2;
+        return this.movePosition >= 0 && this.movePosition < game.size ** 2;
     }
 }
