@@ -1,11 +1,11 @@
-import {ApiError} from "../common/ApiError";
-import {HttpCode} from "../common/HttpCode";
 import {GameService} from "./GameService";
 import {getManager} from "typeorm";
 import {GameEntity} from "./data/GameEntity";
 import {MoveEntity} from "./data/MoveEntity";
-import {UserEntity} from "../auth/UserEntity";
 import {GameStateCalculator} from "./GameStateCalculator";
+import {HttpCode} from "../common/HttpCode";
+import {ApiError} from "../common/ApiError";
+import {UserEntity} from "../auth/UserEntity";
 
 export class GameMoveService {
     protected gameId: string;
@@ -43,13 +43,20 @@ export class GameMoveService {
         const isUserBelongsToGame = await gameService.isUserBelongsToGame(this.userId);
         const isUserTurn = await this.isUserTurn();
         const isMoveMadeToCorrectPlace = await this.isMoveMadeToCorrectPlace();
+        const isPositionToWhichMoveWillBeMadeIsFree = await this.isPositionToWhichMoveWillBeMadeIsFree();
 
-        return !isGameAlreadyFinished && isUserBelongsToGame && isUserTurn && isMoveMadeToCorrectPlace;
+        return (
+            !isGameAlreadyFinished &&
+            isUserBelongsToGame &&
+            isUserTurn &&
+            isMoveMadeToCorrectPlace &&
+            isPositionToWhichMoveWillBeMadeIsFree
+        );
     }
 
     protected async isUserTurn(): Promise<boolean> {
         const gameService = new GameService(this.gameId);
-        const [lastMove] = await gameService.getChronologicallyCreatedMoves();
+        const lastMove = (await gameService.getChronologicallyCreatedMoves()).pop();
 
         if (lastMove) {
             return lastMove.user.id !== this.userId;
@@ -64,5 +71,11 @@ export class GameMoveService {
         const game = await getManager().findOneOrFail(GameEntity, this.gameId);
 
         return this.movePosition >= 0 && this.movePosition < game.size ** 2;
+    }
+
+    protected async isPositionToWhichMoveWillBeMadeIsFree(): Promise<boolean> {
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId, {relations: ["moves"]});
+
+        return !game.moves.find((move: MoveEntity) => move.position === this.movePosition);
     }
 }

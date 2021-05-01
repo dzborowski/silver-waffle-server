@@ -13,7 +13,9 @@ export class GameStateCalculator {
 
     public async recalculateGameState(): Promise<void> {
         const manager = getManager();
-        const game = await manager.findOneOrFail(GameEntity, this.gameId);
+        const game = await manager.findOneOrFail(GameEntity, this.gameId, {
+            relations: ["creator", "oponent"],
+        });
         const moves = await new GameService(this.gameId).getChronologicallyCreatedMoves();
         const movesOnGrid = new Array(game.size ** 2).fill(null);
         const grid: MoveEntity[][] = [];
@@ -26,10 +28,10 @@ export class GameStateCalculator {
 
         const rows = this.getRows(grid, game.size);
         const rowFilledByCreator = rows.find((row: MoveEntity[]) => {
-            return row.every((move: MoveEntity) => move.user.id === game.creator.id);
+            return row.every((move: MoveEntity) => move?.user.id === game.creator.id);
         });
         const rowFilledByOponent = rows.find((row: MoveEntity[]) => {
-            return row.every((move: MoveEntity) => move.user.id === game.oponent.id);
+            return row.every((move: MoveEntity) => move?.user.id === game.oponent.id);
         });
 
         if (rowFilledByCreator) {
