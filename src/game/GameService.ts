@@ -16,7 +16,7 @@ export class GameService {
     public async joinGame(oponentId: string): Promise<void> {
         const manager = getManager();
 
-        const game = await manager.findOneOrFail(GameEntity, this.gameId);
+        const game = await manager.findOneOrFail(GameEntity, this.gameId, {relations: ["oponent"]});
         const oponent = await manager.findOneOrFail(UserEntity, oponentId);
 
         if (await this.isGameAlreadyFinished()) {
@@ -40,17 +40,17 @@ export class GameService {
     }
 
     public async isUserBelongsToGame(userId: string): Promise<boolean> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId, {relations: ["creator", "oponent"]});
         return game.creator.id === userId || game.oponent?.id === userId;
     }
 
     public async getStartingPlayer(): Promise<UserEntity> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId, {relations: ["oponent"]});
         return game.oponent; // todo optionally starting player can be random
     }
 
     public async getChronologicallyCreatedMoves(): Promise<MoveEntity[]> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId, {relations: ["moves"]});
         return game.moves; // todo get sorted by db
     }
 }
