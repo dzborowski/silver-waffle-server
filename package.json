@@ -38,6 +38,7 @@
     },
     "scripts": {
         "dev:start": "nodemon --delay 10ms --watch ./build ./build/App.js",
+        "dev:start:debug": "nodemon --inspect --delay 10ms --watch ./build ./build/App.js",
         "dev:build": "tsc --watch --incremental",
         "prod:start": "node ./build/App.js",
         "prod:build": "rm -rf ./build && tsc",

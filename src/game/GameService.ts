@@ -50,7 +50,7 @@ export class GameService {
     }
 
     public async getChronologicallyCreatedMoves(): Promise<MoveEntity[]> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId, {relations: ["moves"]});
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId, {relations: ["moves", "moves.user"]});
         return game.moves; // todo get sorted by db
     }
 }

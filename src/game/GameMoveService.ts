@@ -28,6 +28,7 @@ export class GameMoveService {
         const manager = getManager();
         const move = new MoveEntity();
 
+        move.game = await manager.findOneOrFail(GameEntity, this.gameId);
         move.user = await manager.findOneOrFail(UserEntity, this.userId);
         move.position = this.movePosition;
         await manager.save(move);
