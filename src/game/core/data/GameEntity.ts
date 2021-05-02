@@ -8,7 +8,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import {UserEntity} from "../../auth/UserEntity";
+import {UserEntity} from "../../../auth/UserEntity";
 import {MoveEntity} from "./MoveEntity";
 import {GameState} from "../GameState";
 

@@ -10,7 +10,8 @@ import ormConfig from "./OrmConfig";
 import {AuthRouter} from "./auth/AuthRouter";
 import {ErrorHandler} from "./common/ErrorHandler";
 import {AppConfig} from "./AppConfig";
-import {GameSocketRouter} from "./game/GameSocketRouter";
+import {GameSocketRouter} from "./game/socket/GameSocketRouter";
+import {GameHttpRouter} from "./game/http/GameHttpRouter";
 
 require("dotenv").config();
 
@@ -39,6 +40,7 @@ class App {
         app.use(bodyParser.urlencoded({extended: false}));
 
         app.use("/api/auth", AuthRouter);
+        app.use("/api/game", GameHttpRouter);
 
         app.use(ErrorHandler.handleError);
 

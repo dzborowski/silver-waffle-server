@@ -3,9 +3,9 @@ import {getManager} from "typeorm";
 import {GameEntity} from "./data/GameEntity";
 import {MoveEntity} from "./data/MoveEntity";
 import {GameStateCalculator} from "./GameStateCalculator";
-import {HttpCode} from "../common/HttpCode";
-import {ApiError} from "../common/ApiError";
-import {UserEntity} from "../auth/UserEntity";
+import {HttpCode} from "../../common/HttpCode";
+import {ApiError} from "../../common/ApiError";
+import {UserEntity} from "../../auth/UserEntity";
 
 export class GameMoveService {
     protected gameId: string;

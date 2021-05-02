@@ -1,5 +1,5 @@
 import {Server, Socket} from "socket.io";
-import {GameFactory} from "./GameFactory";
+import {GameFactory} from "../core/GameFactory";
 
 export class GameSocketRouter {
     public static register(server: Server, socket: Socket) {
