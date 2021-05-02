@@ -16,11 +16,18 @@ export class GameService {
     public async joinGame(oponentId: string): Promise<void> {
         const manager = getManager();
 
-        const game = await manager.findOneOrFail(GameEntity, this.gameId, {relations: ["oponent"]});
+        const game = await manager.findOneOrFail(GameEntity, this.gameId, {relations: ["creator", "oponent"]});
         const oponent = await manager.findOneOrFail(UserEntity, oponentId);
 
         if (await this.isGameAlreadyFinished()) {
             throw new ApiError({message: "Cannot join to finished game", httpCode: HttpCode.BAD_REQUEST});
+        }
+
+        if (game.creator.id === oponentId) {
+            throw new ApiError({
+                message: "Cannot join to game as oponent when you are creator of the game",
+                httpCode: HttpCode.BAD_REQUEST,
+            });
         }
 
         if (game.oponent) {
