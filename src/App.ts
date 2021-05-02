@@ -4,16 +4,34 @@ import * as express from "express";
 import * as helmet from "helmet";
 import * as bodyParser from "body-parser";
 import * as cors from "cors";
+import * as http from "http";
+import {Server, Socket} from "socket.io";
 import ormConfig from "./OrmConfig";
 import {AuthRouter} from "./auth/AuthRouter";
 import {ErrorHandler} from "./common/ErrorHandler";
 import {AppConfig} from "./AppConfig";
+import {GameSocketRouter} from "./game/GameSocketRouter";
 
 require("dotenv").config();
 
-createConnection(ormConfig)
-    .then(() => {
+class App {
+    public static async init() {
+        try {
+            await App.initDataBaseConnection();
+            const httpServer = await App.initHttpServer();
+            await App.initWebsocketServer(httpServer);
+        } catch (error) {
+            console.log("error:", error);
+        }
+    }
+
+    protected static async initDataBaseConnection() {
+        await createConnection(ormConfig);
+    }
+
+    protected static async initHttpServer(): Promise<http.Server> {
         const app = express();
+        const server = http.createServer(app);
 
         app.use(cors());
         app.use(helmet());
@@ -26,8 +44,21 @@ createConnection(ormConfig)
 
         const appPort = AppConfig.getAppPort();
 
-        app.listen(appPort, () => {
-            console.log(`App listening at http://localhost:${appPort}`);
+        server.listen(appPort, () => {
+            console.log(`Http server listening at http://localhost:${appPort}`);
         });
-    })
-    .catch((err) => console.error(`Database connection error: ${err}`));
+
+        return server;
+    }
+
+    protected static async initWebsocketServer(server) {
+        const io = new Server(server);
+
+        io.on("connection", (socket: Socket) => {
+            console.log("connected: ", socket.id);
+            GameSocketRouter.register(io, socket);
+        });
+    }
+}
+
+App.init();

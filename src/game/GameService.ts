@@ -50,7 +50,14 @@ export class GameService {
     }
 
     public async getChronologicallyCreatedMoves(): Promise<MoveEntity[]> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId, {relations: ["moves", "moves.user"]});
-        return game.moves; // todo get sorted by db
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        return getManager().find(MoveEntity, {where: {game}, relations: ["user"]});
+    }
+
+    public async getLastMove(): Promise<MoveEntity> {
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        // return getManager().findOne(MoveEntity, {where: {game}}, {order: {createdAt: "ASC"}});
+        return null
+        // return getManager().findOne(MoveEntity, {where: {game}}, {order: {createdAt: "ASC"}});
     }
 }

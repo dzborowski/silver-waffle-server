@@ -56,7 +56,7 @@ export class GameMoveService {
 
     protected async isUserTurn(): Promise<boolean> {
         const gameService = new GameService(this.gameId);
-        const lastMove = (await gameService.getChronologicallyCreatedMoves()).pop();
+        const lastMove = await gameService.getLastMove();
 
         if (lastMove) {
             return lastMove.user.id !== this.userId;
