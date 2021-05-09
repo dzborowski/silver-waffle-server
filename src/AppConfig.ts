@@ -29,6 +29,10 @@ export class AppConfig {
         return process.env.POSTGRES_DB || "silver_waffle_db";
     }
 
+    public static getClientUrl(): string {
+        return "http://localhost:9000";
+    }
+
     public static isDevelopment(): boolean {
         return process.env.NODE_ENV === "development";
     }

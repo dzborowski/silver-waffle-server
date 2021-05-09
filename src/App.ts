@@ -34,7 +34,7 @@ class App {
         const app = express();
         const server = http.createServer(app);
 
-        app.use(cors());
+        app.use(cors({origin: AppConfig.getClientUrl()}));
         app.use(helmet());
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({extended: false}));
@@ -54,7 +54,9 @@ class App {
     }
 
     protected static async initWebsocketServer(server) {
-        const io = new Server(server);
+        const io = new Server(server, {
+            cors: {origin: AppConfig.getClientUrl()},
+        });
 
         io.on("connection", (socket: Socket) => {
             console.log("connected: ", socket.id);
