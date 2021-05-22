@@ -12,6 +12,7 @@ import {ErrorHandler} from "./common/ErrorHandler";
 import {AppConfig} from "./AppConfig";
 import {GameSocketRouter} from "./game/socket/GameSocketRouter";
 import {GameHttpRouter} from "./game/http/GameHttpRouter";
+import {AuthMiddleware} from "./auth/AuthMiddleware";
 
 require("dotenv").config();
 
@@ -57,6 +58,8 @@ class App {
         const io = new Server(server, {
             cors: {origin: AppConfig.getClientUrl()},
         });
+
+        io.use(AuthMiddleware.socketVerifyAuth);
 
         io.on("connection", (socket: Socket) => {
             console.log("connected: ", socket.id);

@@ -1,13 +1,13 @@
 import {Router} from "express";
 import * as asyncHandler from "express-async-handler";
 import {GameHttpController} from "./GameHttpController";
-import {AuthService} from "../../auth/AuthService";
+import {AuthMiddleware} from "../../auth/AuthMiddleware";
 
 export const GameHttpRouter = Router();
 
 GameHttpRouter.route("/").get(asyncHandler(GameHttpController.getGames));
 
 GameHttpRouter.route("/:gameId/moves").get(
-    asyncHandler(AuthService.verifyAuth),
+    asyncHandler(AuthMiddleware.httpVerifyAuth),
     asyncHandler(GameHttpController.getGameMoves)
 );

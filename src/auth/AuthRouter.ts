@@ -3,7 +3,7 @@ import {celebrate} from "celebrate";
 import * as asyncHandler from "express-async-handler";
 import {AuthSchema} from "./AuthSchema";
 import {AuthController} from "./AuthController";
-import {AuthService} from "./AuthService";
+import {AuthMiddleware} from "./AuthMiddleware";
 
 export const AuthRouter = Router();
 
@@ -28,4 +28,7 @@ AuthRouter.route("/refresh").post(
     asyncHandler(AuthController.refresh)
 );
 
-AuthRouter.route("/logged-user").get(asyncHandler(AuthService.verifyAuth), asyncHandler(AuthController.getLoggedUser));
+AuthRouter.route("/logged-user").get(
+    asyncHandler(AuthMiddleware.httpVerifyAuth),
+    asyncHandler(AuthController.getLoggedUser)
+);
