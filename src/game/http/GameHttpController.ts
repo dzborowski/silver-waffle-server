@@ -15,9 +15,9 @@ export class GameHttpController {
     public static async getGameMoves(req: Request, res: Response): Promise<void> {
         const manager = getManager();
         const gameService = new GameService(req.params.gameId);
-        const isUserBelongsToGame = await gameService.isUserBelongsToGame(req.user.id);
+        const doesUserBelongToGame = await gameService.doesUserBelongToGame(req.user.id);
 
-        if (!isUserBelongsToGame) {
+        if (!doesUserBelongToGame) {
             throw new ApiError({
                 message: "Cannot get moves from game where you didn't belong",
                 httpCode: HttpCode.FORBIDDEN,

@@ -46,7 +46,7 @@ export class GameService {
         return game.state === GameState.FINISHED;
     }
 
-    public async isUserBelongsToGame(userId: string): Promise<boolean> {
+    public async doesUserBelongToGame(userId: string): Promise<boolean> {
         const game = await getManager().findOneOrFail(GameEntity, this.gameId, {relations: ["creator", "oponent"]});
         return game.creator.id === userId || game.oponent?.id === userId;
     }

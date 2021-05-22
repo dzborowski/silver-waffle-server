@@ -18,7 +18,7 @@ export class AuthMiddleware {
         const accessToken = socket.handshake.auth.token;
 
         try {
-            await AuthMiddleware.verifyAuth(accessToken);
+            socket.data.user = await AuthMiddleware.verifyAuth(accessToken);
             next();
         } catch (error) {
             next(error);
