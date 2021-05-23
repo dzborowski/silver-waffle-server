@@ -13,6 +13,11 @@ export class GameSocketRouter {
             socket.to(gameId).emit("player-joined-to-game");
         });
 
+        socket.on("rejoin-to-game", (gameId: string) => {
+            socket.join(gameId);
+            socket.to(gameId).emit("player-rejoined-to-game");
+        });
+
         socket.on("leave-game", (gameId: string) => {
             socket.leave(gameId);
             socket.to(gameId).emit("player-leave-game");
