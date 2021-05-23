@@ -30,7 +30,7 @@ export class AppConfig {
     }
 
     public static getClientUrl(): string {
-        return "http://localhost:9000";
+        return process.env.CLIENT_URL || "http://localhost:9000";
     }
 
     public static isDevelopment(): boolean {
