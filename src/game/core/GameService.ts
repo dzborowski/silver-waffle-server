@@ -37,6 +37,7 @@ export class GameService {
         }
 
         game.oponent = oponent;
+        game.state = GameState.STARTED;
         await manager.save(game);
     }
 

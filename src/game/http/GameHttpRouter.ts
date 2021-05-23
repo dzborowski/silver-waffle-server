@@ -6,8 +6,10 @@ import {AuthMiddleware} from "../../auth/AuthMiddleware";
 export const GameHttpRouter = Router();
 
 GameHttpRouter.route("/")
-    .get(asyncHandler(GameHttpController.getGames))
+    .get(asyncHandler(AuthMiddleware.httpVerifyAuth), asyncHandler(GameHttpController.getUserGames))
     .post(asyncHandler(AuthMiddleware.httpVerifyAuth), asyncHandler(GameHttpController.createGame));
+
+GameHttpRouter.route("/available-games").get(asyncHandler(GameHttpController.getAvailableGames));
 
 GameHttpRouter.route("/:gameId/join-to-game").post(
     asyncHandler(AuthMiddleware.httpVerifyAuth),

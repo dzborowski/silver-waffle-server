@@ -1,21 +1,11 @@
 import {Server, Socket} from "socket.io";
 import {GameMoveService} from "../core/GameMoveService";
-import {GameSocketConfig} from "./GameSocketConfig";
 
 export class GameSocketRouter {
     public static registerEvents(server: Server, socket: Socket) {
-        socket.on("new-game-created", () => {
-            socket.to(GameSocketConfig.GENERAL_ROOM).emit("new-game-created");
-        });
-
         socket.on("join-to-game", (gameId: string) => {
             socket.join(gameId);
             socket.to(gameId).emit("player-joined-to-game");
-        });
-
-        socket.on("rejoin-to-game", (gameId: string) => {
-            socket.join(gameId);
-            socket.to(gameId).emit("player-rejoined-to-game");
         });
 
         socket.on("leave-game", (gameId: string) => {

@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {createConnection} from "typeorm";
 import * as express from "express";
+import {Express} from "express";
 import * as helmet from "helmet";
 import * as bodyParser from "body-parser";
 import * as cors from "cors";
@@ -22,8 +23,10 @@ class App {
     public static async init() {
         try {
             await App.initDataBaseConnection();
-            const httpServer = await App.initHttpServer();
-            await App.initWebsocketServer(httpServer);
+            const [httpServer, app] = await App.initHttpServer();
+            const io = await App.initWebsocketServer(httpServer);
+
+            app.set("socket.io", io);
         } catch (error) {
             Logger.log(`error: ${error}`);
         }
@@ -33,7 +36,7 @@ class App {
         await createConnection(ormConfig);
     }
 
-    protected static async initHttpServer(): Promise<http.Server> {
+    protected static async initHttpServer(): Promise<[http.Server, Express]> {
         const app = express();
         const server = http.createServer(app);
 
@@ -53,10 +56,10 @@ class App {
             Logger.log(`Http server listening at http://localhost:${appPort}`);
         });
 
-        return server;
+        return [server, app];
     }
 
-    protected static async initWebsocketServer(server): Promise<void> {
+    protected static async initWebsocketServer(server): Promise<Server> {
         const io = new Server(server, {
             cors: {origin: AppConfig.getClientUrl()},
         });
@@ -68,6 +71,8 @@ class App {
             socket.join(GameSocketConfig.GENERAL_ROOM);
             GameSocketRouter.registerEvents(io, socket);
         });
+
+        return io;
     }
 }
 

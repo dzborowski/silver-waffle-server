@@ -6,10 +6,14 @@ import {GameService} from "../core/GameService";
 import {ApiError} from "../../common/ApiError";
 import {HttpCode} from "../../common/HttpCode";
 import {GameFactory} from "../core/GameFactory";
+import {GameState} from "../core/GameState";
+import {GameSocketConfig} from "../socket/GameSocketConfig";
 
 export class GameHttpController {
     public static async createGame(req: Request, res: Response): Promise<void> {
         const game = await GameFactory.crateGame(req.user.id, req.body.gameSize);
+        delete game.creator;
+        req.app.get("socket.io").to(GameSocketConfig.GENERAL_ROOM).emit("available-games-state-have-changed");
         res.json(game);
     }
 
@@ -17,11 +21,17 @@ export class GameHttpController {
         const gameId = req.params.gameId;
         const gameService = new GameService(gameId);
         await gameService.joinToGame(req.user.id);
+        req.app.get("socket.io").to(GameSocketConfig.GENERAL_ROOM).emit("available-games-state-have-changed");
         res.end();
     }
 
-    public static async getGames(req: Request, res: Response): Promise<void> {
-        const games = await getManager().find(GameEntity);
+    public static async getAvailableGames(req: Request, res: Response): Promise<void> {
+        const games = await getManager().find(GameEntity, {where: {state: GameState.CREATED}});
+        res.json(games);
+    }
+
+    public static async getUserGames(req: Request, res: Response): Promise<void> {
+        const games = await getManager().find(GameEntity, {where: [{creator: req.user}, {oponent: req.user}]});
         res.json(games);
     }
 
