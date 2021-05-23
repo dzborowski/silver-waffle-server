@@ -1,19 +1,27 @@
 import {Server, Socket} from "socket.io";
-import {GameFactory} from "../core/GameFactory";
-import {GameService} from "../core/GameService";
+import {GameMoveService} from "../core/GameMoveService";
+import {GameSocketConfig} from "./GameSocketConfig";
 
 export class GameSocketRouter {
-    public static register(server: Server, socket: Socket) {
-        socket.on("create-game", async (gameSize: number) => {
-            await GameFactory.crateGame(socket.data.user.id, gameSize);
-            socket.broadcast.emit("new-game-created");
+    public static registerEvents(server: Server, socket: Socket) {
+        socket.on("new-game-created", () => {
+            socket.to(GameSocketConfig.GENERAL_ROOM).emit("new-game-created");
         });
 
-        socket.on("join-to-game", async (gameId: string) => {
-            const gameService = new GameService(gameId);
-            await gameService.joinGame(socket.data.user.id);
+        socket.on("join-to-game", (gameId: string) => {
+            socket.join(gameId);
+            socket.to(gameId).emit("player-joined-to-game");
         });
 
-        socket.on("move", async () => {});
+        socket.on("leave-game", (gameId: string) => {
+            socket.leave(gameId);
+            socket.to(gameId).emit("player-leave-game");
+        });
+
+        socket.on("move", async ({gameId, movePosition}) => {
+            const gameMoveService = new GameMoveService(gameId, socket.data.user.id, movePosition);
+            await gameMoveService.move();
+            socket.to(gameId).emit("move-was-made");
+        });
     }
 }

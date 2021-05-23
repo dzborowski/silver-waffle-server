@@ -13,6 +13,8 @@ import {AppConfig} from "./AppConfig";
 import {GameSocketRouter} from "./game/socket/GameSocketRouter";
 import {GameHttpRouter} from "./game/http/GameHttpRouter";
 import {AuthMiddleware} from "./auth/AuthMiddleware";
+import {GameSocketConfig} from "./game/socket/GameSocketConfig";
+import {Logger} from "./common/Logger";
 
 require("dotenv").config();
 
@@ -23,7 +25,7 @@ class App {
             const httpServer = await App.initHttpServer();
             await App.initWebsocketServer(httpServer);
         } catch (error) {
-            console.log("error:", error);
+            Logger.log(`error: ${error}`);
         }
     }
 
@@ -48,13 +50,13 @@ class App {
         const appPort = AppConfig.getAppPort();
 
         server.listen(appPort, () => {
-            console.log(`Http server listening at http://localhost:${appPort}`);
+            Logger.log(`Http server listening at http://localhost:${appPort}`);
         });
 
         return server;
     }
 
-    protected static async initWebsocketServer(server) {
+    protected static async initWebsocketServer(server): Promise<void> {
         const io = new Server(server, {
             cors: {origin: AppConfig.getClientUrl()},
         });
@@ -62,8 +64,9 @@ class App {
         io.use(AuthMiddleware.socketVerifyAuth);
 
         io.on("connection", (socket: Socket) => {
-            console.log("connected: ", socket.id);
-            GameSocketRouter.register(io, socket);
+            Logger.log(`connected: ${socket.id}`);
+            socket.join(GameSocketConfig.GENERAL_ROOM);
+            GameSocketRouter.registerEvents(io, socket);
         });
     }
 }
