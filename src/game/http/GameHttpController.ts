@@ -12,7 +12,6 @@ import {GameSocketConfig} from "../socket/GameSocketConfig";
 export class GameHttpController {
     public static async createGame(req: Request, res: Response): Promise<void> {
         const game = await GameFactory.crateGame(req.user.id, req.body.gameSize);
-        delete game.creator;
         req.app.get("socket.io").to(GameSocketConfig.GENERAL_ROOM).emit("available-games-state-have-changed");
         res.json(game);
     }

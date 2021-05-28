@@ -10,6 +10,7 @@ export class GameFactory {
         game.size = gameSize;
         game.creator = await manager.findOneOrFail(UserEntity, creatorId);
         await manager.save(game);
+        delete game.creator;
         return game;
     }
 }
