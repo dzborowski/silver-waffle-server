@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {getManager} from "typeorm";
+import {getManager, Not} from "typeorm";
 import {GameEntity} from "../core/data/GameEntity";
 import {MoveEntity} from "../core/data/MoveEntity";
 import {GameService} from "../core/GameService";
@@ -26,7 +26,9 @@ export class GameHttpController {
     }
 
     public static async getAvailableGames(req: Request, res: Response): Promise<void> {
-        const games = await getManager().find(GameEntity, {where: {state: GameState.CREATED}});
+        const games = await getManager().find(GameEntity, {
+            where: {state: GameState.CREATED, creatorId: Not(req.user.id)},
+        });
         res.json(games);
     }
 

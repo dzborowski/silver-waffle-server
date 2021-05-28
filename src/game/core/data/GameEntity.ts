@@ -23,6 +23,9 @@ export class GameEntity extends BaseEntity {
     @Column({type: "enum", enum: GameState, default: GameState.CREATED})
     public state: GameState;
 
+    @Column()
+    public creatorId: string;
+
     @ManyToOne(() => UserEntity, (user) => user.gamesAsCreator)
     public creator: UserEntity;
 
