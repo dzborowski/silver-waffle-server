@@ -39,14 +39,16 @@ export class GameMoveService {
 
     protected async canMakeMove(): Promise<boolean> {
         const gameService = new GameService(this.gameId);
-        const isGameAlreadyFinished = await gameService.isGameAlreadyFinished();
+        const gameWasStarted = await gameService.gameWasStarted();
+        const gameWasFinished = await gameService.gameWasFinished();
         const doesUserBelongToGame = await gameService.doesUserBelongToGame(this.userId);
         const isUserTurn = await this.isUserTurn();
         const isMoveMadeToCorrectPlace = await this.isMoveMadeToCorrectPlace();
         const isPositionToWhichMoveWillBeMadeIsFree = await this.isPositionToWhichMoveWillBeMadeIsFree();
 
         return (
-            !isGameAlreadyFinished &&
+            gameWasStarted &&
+            !gameWasFinished &&
             doesUserBelongToGame &&
             isUserTurn &&
             isMoveMadeToCorrectPlace &&
@@ -59,7 +61,7 @@ export class GameMoveService {
         const lastMove = await gameService.getLastMove();
 
         if (lastMove) {
-            return lastMove.user.id !== this.userId;
+            return lastMove.userId !== this.userId;
         }
 
         const startingPlayer = await gameService.getStartingPlayer();

@@ -14,13 +14,12 @@ export class GameService {
     }
 
     public async joinToGame(oponentId: string): Promise<void> {
-        if (await this.isGameAlreadyFinished()) {
+        if (await this.gameWasFinished()) {
             throw new ApiError({message: "Cannot join to finished game", httpCode: HttpCode.BAD_REQUEST});
         }
 
         const manager = getManager();
         const game = await manager.findOneOrFail(GameEntity, this.gameId);
-        const oponent = await manager.findOneOrFail(UserEntity, oponentId);
 
         if (game.creatorId === oponentId) {
             throw new ApiError({
@@ -36,12 +35,17 @@ export class GameService {
             });
         }
 
-        game.oponent = oponent;
+        game.oponent = await manager.findOneOrFail(UserEntity, oponentId);
         game.state = GameState.STARTED;
         await manager.save(game);
     }
 
-    public async isGameAlreadyFinished(): Promise<boolean> {
+    public async gameWasStarted(): Promise<boolean> {
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        return game.state === GameState.STARTED;
+    }
+
+    public async gameWasFinished(): Promise<boolean> {
         const game = await getManager().findOneOrFail(GameEntity, this.gameId);
         return game.state === GameState.FINISHED;
     }
@@ -68,7 +72,6 @@ export class GameService {
         return getManager().findOne(MoveEntity, {
             where: {gameId: this.gameId},
             order: {createdAt: "DESC"},
-            relations: ["user"],
         });
     }
 }

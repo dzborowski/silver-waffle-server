@@ -37,6 +37,12 @@ export class GameHttpController {
         res.json(games);
     }
 
+    public static async getGame(req: Request, res: Response): Promise<void> {
+        const manager = getManager();
+        const game = await manager.findOne(GameEntity, req.params.gameId);
+        res.json(game);
+    }
+
     public static async getGameMoves(req: Request, res: Response): Promise<void> {
         const manager = getManager();
         const gameId = req.params.gameId;

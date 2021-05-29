@@ -19,6 +19,11 @@ GameHttpRouter.route("/:gameId/join-to-game").post(
     asyncHandler(GameHttpController.joinToGame)
 );
 
+GameHttpRouter.route("/:gameId").get(
+    asyncHandler(AuthMiddleware.httpVerifyAuth),
+    asyncHandler(GameHttpController.getGame)
+);
+
 GameHttpRouter.route("/:gameId/moves").get(
     asyncHandler(AuthMiddleware.httpVerifyAuth),
     asyncHandler(GameHttpController.getGameMoves)

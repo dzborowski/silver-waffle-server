@@ -14,9 +14,13 @@ export class GameSocketRouter {
         });
 
         socket.on("move", async ({gameId, movePosition}) => {
-            const gameMoveService = new GameMoveService(gameId, socket.data.user.id, movePosition);
-            await gameMoveService.move();
-            socket.to(gameId).emit("move-was-made");
+            try {
+                const gameMoveService = new GameMoveService(gameId, socket.data.user.id, movePosition);
+                await gameMoveService.move();
+                socket.to(gameId).emit("move-was-made");
+            } catch (error) {
+                console.log(error);
+            }
         });
     }
 }
