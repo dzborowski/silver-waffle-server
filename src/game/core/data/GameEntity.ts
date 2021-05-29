@@ -29,11 +29,17 @@ export class GameEntity extends BaseEntity {
     @ManyToOne(() => UserEntity, (user) => user.gamesAsCreator)
     public creator: UserEntity;
 
+    @Column({nullable: true})
+    public oponentId: string;
+
     @ManyToOne(() => UserEntity, (user) => user.gamesAsOponent)
     public oponent: UserEntity;
 
     @OneToMany(() => MoveEntity, (move) => move.game)
     public moves: MoveEntity[];
+
+    @Column({nullable: true})
+    public winnerId: string;
 
     @ManyToOne(() => UserEntity)
     public winner: UserEntity;

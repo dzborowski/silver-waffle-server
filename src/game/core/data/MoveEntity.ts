@@ -18,8 +18,14 @@ export class MoveEntity extends BaseEntity {
     @Column({type: "int"})
     public position: number;
 
+    @Column()
+    public userId: string;
+
     @ManyToOne(() => UserEntity, (user) => user.moves)
     public user: UserEntity;
+
+    @Column()
+    public gameId: string;
 
     @ManyToOne(() => GameEntity, (game) => game.moves)
     public game: GameEntity;

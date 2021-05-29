@@ -32,13 +32,15 @@ export class GameHttpController {
     }
 
     public static async getUserGames(req: Request, res: Response): Promise<void> {
-        const games = await getManager().find(GameEntity, {where: [{creator: req.user}, {oponent: req.user}]});
+        const userId = req.user.id;
+        const games = await getManager().find(GameEntity, {where: [{creatorId: userId}, {oponentId: userId}]});
         res.json(games);
     }
 
     public static async getGameMoves(req: Request, res: Response): Promise<void> {
         const manager = getManager();
-        const gameService = new GameService(req.params.gameId);
+        const gameId = req.params.gameId;
+        const gameService = new GameService(gameId);
         const doesUserBelongToGame = await gameService.doesUserBelongToGame(req.user.id);
 
         if (!doesUserBelongToGame) {
@@ -48,8 +50,7 @@ export class GameHttpController {
             });
         }
 
-        const game = await manager.findOneOrFail(GameEntity, req.params.gameId);
-        const moves = await manager.find(MoveEntity, {where: {game}, order: {createdAt: "ASC"}});
+        const moves = await manager.find(MoveEntity, {where: {gameId}, order: {createdAt: "ASC"}});
         res.json(moves);
     }
 }

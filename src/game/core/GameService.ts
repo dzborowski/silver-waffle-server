@@ -19,17 +19,17 @@ export class GameService {
         }
 
         const manager = getManager();
-        const game = await manager.findOneOrFail(GameEntity, this.gameId, {relations: ["creator", "oponent"]});
+        const game = await manager.findOneOrFail(GameEntity, this.gameId);
         const oponent = await manager.findOneOrFail(UserEntity, oponentId);
 
-        if (game.creator.id === oponentId) {
+        if (game.creatorId === oponentId) {
             throw new ApiError({
                 message: "Cannot join to game as oponent when you are creator of the game",
                 httpCode: HttpCode.BAD_REQUEST,
             });
         }
 
-        if (game.oponent) {
+        if (game.oponentId) {
             throw new ApiError({
                 message: "Cannot join to game which have already all players",
                 httpCode: HttpCode.BAD_REQUEST,
@@ -47,8 +47,8 @@ export class GameService {
     }
 
     public async doesUserBelongToGame(userId: string): Promise<boolean> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId, {relations: ["creator", "oponent"]});
-        return game.creator.id === userId || game.oponent?.id === userId;
+        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        return game.creatorId === userId || game.oponentId === userId;
     }
 
     public async getStartingPlayer(): Promise<UserEntity> {
@@ -57,16 +57,18 @@ export class GameService {
     }
 
     public async getChronologicallyCreatedMoves(): Promise<MoveEntity[]> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
         return getManager().find(MoveEntity, {
-            where: {game},
+            where: {gameId: this.gameId},
             order: {createdAt: "ASC"},
             relations: ["user"],
         });
     }
 
     public async getLastMove(): Promise<MoveEntity> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
-        return getManager().findOne(MoveEntity, {where: {game}, order: {createdAt: "DESC"}, relations: ["user"]});
+        return getManager().findOne(MoveEntity, {
+            where: {gameId: this.gameId},
+            order: {createdAt: "DESC"},
+            relations: ["user"],
+        });
     }
 }

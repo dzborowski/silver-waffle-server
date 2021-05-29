@@ -74,8 +74,9 @@ export class GameMoveService {
     }
 
     protected async isPositionToWhichMoveWillBeMadeIsFree(): Promise<boolean> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
-        const move = await getManager().findOne(MoveEntity, {where: {game, position: this.movePosition}});
+        const move = await getManager().findOne(MoveEntity, {
+            where: {gameId: this.gameId, position: this.movePosition},
+        });
         return !move;
     }
 }
