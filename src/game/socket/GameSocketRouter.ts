@@ -17,7 +17,7 @@ export class GameSocketRouter {
             try {
                 const gameMoveService = new GameMoveService(gameId, socket.data.user.id, movePosition);
                 await gameMoveService.move();
-                socket.to(gameId).emit("move-was-made");
+                server.to(gameId).emit("move-was-made");
             } catch (error) {
                 console.log(error);
             }
