@@ -19,7 +19,7 @@ export class GameSocketRouter {
                 await gameMoveService.move();
                 server.to(gameId).emit("move-was-made");
             } catch (error) {
-                console.log(error);
+                server.to(socket.id).emit("custom-error", {errorMessage: error?.message ?? error});
             }
         });
     }

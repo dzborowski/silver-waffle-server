@@ -3,7 +3,7 @@ import {NextFunction, Request, Response} from "express";
 import {HttpCode} from "./HttpCode";
 import {isCelebrateError} from "celebrate";
 
-export class ErrorHandler {
+export class HttpErrorHandler {
     public static handleError(err: string | Error | ApiError, req: Request, res: Response, next: NextFunction) {
         let errorMessage: string;
         let errorHttpCode: HttpCode = HttpCode.INTERNAL_SERVER_ERROR;
