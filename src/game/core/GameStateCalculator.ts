@@ -1,22 +1,21 @@
 import {GameService} from "./GameService";
-import {getManager} from "typeorm";
+import {EntityManager} from "typeorm";
 import {GameEntity} from "./data/GameEntity";
 import {MoveEntity} from "./data/MoveEntity";
 import {GameState} from "./GameState";
 
 export class GameStateCalculator {
     protected gameId: string;
+    protected manager: EntityManager;
 
-    public constructor(gameId: string) {
+    public constructor(gameId: string, manager: EntityManager) {
         this.gameId = gameId;
+        this.manager = manager;
     }
 
     public async recalculateGameState(): Promise<void> {
-        const manager = getManager();
-        const game = await manager.findOneOrFail(GameEntity, this.gameId, {
-            relations: ["creator", "oponent"],
-        });
-        const moves = await new GameService(this.gameId).getChronologicallyCreatedMoves();
+        const game = await this.manager.findOneOrFail(GameEntity, this.gameId);
+        const moves = await new GameService(this.gameId, this.manager).getChronologicallyCreatedMoves();
         const movesOnGrid = new Array(game.size ** 2).fill(null);
         const grid: MoveEntity[][] = [];
 
@@ -28,18 +27,18 @@ export class GameStateCalculator {
 
         const rows = this.getRows(grid, game.size);
         const rowFilledByCreator = rows.find((row: MoveEntity[]) => {
-            return row.every((move: MoveEntity) => move?.user.id === game.creator.id);
+            return row.every((move: MoveEntity) => move?.userId === game.creatorId);
         });
         const rowFilledByOponent = rows.find((row: MoveEntity[]) => {
-            return row.every((move: MoveEntity) => move?.user.id === game.oponent.id);
+            return row.every((move: MoveEntity) => move?.userId === game.oponentId);
         });
 
         if (rowFilledByCreator) {
             game.state = GameState.FINISHED;
-            game.winner = game.creator;
+            game.winnerId = game.creatorId;
         } else if (rowFilledByOponent) {
             game.state = GameState.FINISHED;
-            game.winner = game.oponent;
+            game.winnerId = game.oponentId;
         } else {
             const allAvailableMovesAreDone = movesOnGrid.every((move: MoveEntity) => move);
 
@@ -48,7 +47,7 @@ export class GameStateCalculator {
             }
         }
 
-        await manager.save(game);
+        await this.manager.save(game);
     }
 
     protected getRows(grid: MoveEntity[][], size: number): MoveEntity[][] {

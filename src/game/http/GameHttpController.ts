@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {getManager, Not} from "typeorm";
+import {EntityManager, getManager, Not} from "typeorm";
 import {GameEntity} from "../core/data/GameEntity";
 import {MoveEntity} from "../core/data/MoveEntity";
 import {GameService} from "../core/GameService";
@@ -17,9 +17,12 @@ export class GameHttpController {
     }
 
     public static async joinToGame(req: Request, res: Response): Promise<void> {
-        const gameId = req.params.gameId;
-        const gameService = new GameService(gameId);
-        await gameService.joinToGame(req.user.id);
+        await getManager().transaction(async (manager: EntityManager) => {
+            const gameId = req.params.gameId;
+            const gameService = new GameService(gameId, manager);
+            await gameService.joinToGame(req.user.id);
+        });
+
         req.app.get("socket.io").to(GameSocketConfig.GENERAL_ROOM).emit("available-games-state-have-changed");
         res.end();
     }
@@ -46,7 +49,7 @@ export class GameHttpController {
     public static async getGameMoves(req: Request, res: Response): Promise<void> {
         const manager = getManager();
         const gameId = req.params.gameId;
-        const gameService = new GameService(gameId);
+        const gameService = new GameService(gameId, manager);
         const doesUserBelongToGame = await gameService.doesUserBelongToGame(req.user.id);
 
         if (!doesUserBelongToGame) {

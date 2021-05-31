@@ -1,4 +1,4 @@
-import {getManager} from "typeorm";
+import {EntityManager} from "typeorm";
 import {UserEntity} from "../../auth/UserEntity";
 import {ApiError} from "../../common/ApiError";
 import {HttpCode} from "../../common/HttpCode";
@@ -8,9 +8,11 @@ import {GameState} from "./GameState";
 
 export class GameService {
     protected gameId: string;
+    protected manager: EntityManager;
 
-    public constructor(gameId: string) {
+    public constructor(gameId: string, manager: EntityManager) {
         this.gameId = gameId;
+        this.manager = manager;
     }
 
     public async joinToGame(oponentId: string): Promise<void> {
@@ -18,8 +20,7 @@ export class GameService {
             throw new ApiError({message: "Cannot join to finished game", httpCode: HttpCode.BAD_REQUEST});
         }
 
-        const manager = getManager();
-        const game = await manager.findOneOrFail(GameEntity, this.gameId);
+        const game = await this.manager.findOneOrFail(GameEntity, this.gameId);
 
         if (game.creatorId === oponentId) {
             throw new ApiError({
@@ -35,41 +36,40 @@ export class GameService {
             });
         }
 
-        game.oponent = await manager.findOneOrFail(UserEntity, oponentId);
+        game.oponent = await this.manager.findOneOrFail(UserEntity, oponentId);
         game.state = GameState.STARTED;
-        await manager.save(game);
+        await this.manager.save(game);
     }
 
     public async gameWasStarted(): Promise<boolean> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        const game = await this.manager.findOneOrFail(GameEntity, this.gameId);
         return game.state === GameState.STARTED;
     }
 
     public async gameWasFinished(): Promise<boolean> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        const game = await this.manager.findOneOrFail(GameEntity, this.gameId);
         return game.state === GameState.FINISHED;
     }
 
     public async doesUserBelongToGame(userId: string): Promise<boolean> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        const game = await this.manager.findOneOrFail(GameEntity, this.gameId);
         return game.creatorId === userId || game.oponentId === userId;
     }
 
     public async getStartingPlayer(): Promise<UserEntity> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId, {relations: ["oponent"]});
+        const game = await this.manager.findOneOrFail(GameEntity, this.gameId, {relations: ["oponent"]});
         return game.oponent; // todo optionally starting player can be random
     }
 
     public async getChronologicallyCreatedMoves(): Promise<MoveEntity[]> {
-        return getManager().find(MoveEntity, {
+        return this.manager.find(MoveEntity, {
             where: {gameId: this.gameId},
             order: {createdAt: "ASC"},
-            relations: ["user"],
         });
     }
 
     public async getLastMove(): Promise<MoveEntity> {
-        return getManager().findOne(MoveEntity, {
+        return this.manager.findOne(MoveEntity, {
             where: {gameId: this.gameId},
             order: {createdAt: "DESC"},
         });

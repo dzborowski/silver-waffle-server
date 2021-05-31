@@ -1,5 +1,6 @@
 import {Server, Socket} from "socket.io";
 import {GameMoveService} from "../core/GameMoveService";
+import {EntityManager, getManager} from "typeorm";
 
 export class GameSocketRouter {
     public static registerEvents(server: Server, socket: Socket) {
@@ -15,8 +16,11 @@ export class GameSocketRouter {
 
         socket.on("move", async ({gameId, movePosition}) => {
             try {
-                const gameMoveService = new GameMoveService(gameId, socket.data.user.id, movePosition);
-                await gameMoveService.move();
+                await getManager().transaction(async (manager: EntityManager) => {
+                    const gameMoveService = new GameMoveService(gameId, socket.data.user.id, movePosition, manager);
+                    await gameMoveService.move();
+                });
+
                 server.to(gameId).emit("move-was-made");
             } catch (error) {
                 server.to(socket.id).emit("custom-error", {errorMessage: error?.message ?? error});

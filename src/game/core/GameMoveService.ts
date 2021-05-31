@@ -1,5 +1,5 @@
 import {GameService} from "./GameService";
-import {getManager} from "typeorm";
+import {EntityManager} from "typeorm";
 import {GameEntity} from "./data/GameEntity";
 import {MoveEntity} from "./data/MoveEntity";
 import {GameStateCalculator} from "./GameStateCalculator";
@@ -11,11 +11,13 @@ export class GameMoveService {
     protected gameId: string;
     protected userId: string;
     protected movePosition: number;
+    protected manager: EntityManager;
 
-    public constructor(gameId: string, userId: string, movePosition: number) {
+    public constructor(gameId: string, userId: string, movePosition: number, manager: EntityManager) {
         this.gameId = gameId;
         this.userId = userId;
         this.movePosition = movePosition;
+        this.manager = manager;
     }
 
     public async move(): Promise<void> {
@@ -25,20 +27,19 @@ export class GameMoveService {
             throw new ApiError({message: "Cannot make move", httpCode: HttpCode.BAD_REQUEST});
         }
 
-        const manager = getManager();
         const move = new MoveEntity();
 
-        move.game = await manager.findOneOrFail(GameEntity, this.gameId);
-        move.user = await manager.findOneOrFail(UserEntity, this.userId);
+        move.game = await this.manager.findOneOrFail(GameEntity, this.gameId);
+        move.user = await this.manager.findOneOrFail(UserEntity, this.userId);
         move.position = this.movePosition;
-        await manager.save(move);
+        await this.manager.save(move);
 
-        const gameStateCalculator = new GameStateCalculator(this.gameId);
+        const gameStateCalculator = new GameStateCalculator(this.gameId, this.manager);
         await gameStateCalculator.recalculateGameState();
     }
 
     protected async canMakeMove(): Promise<boolean> {
-        const gameService = new GameService(this.gameId);
+        const gameService = new GameService(this.gameId, this.manager);
         const gameWasStarted = await gameService.gameWasStarted();
         const gameWasFinished = await gameService.gameWasFinished();
         const doesUserBelongToGame = await gameService.doesUserBelongToGame(this.userId);
@@ -57,7 +58,7 @@ export class GameMoveService {
     }
 
     protected async isUserTurn(): Promise<boolean> {
-        const gameService = new GameService(this.gameId);
+        const gameService = new GameService(this.gameId, this.manager);
         const lastMove = await gameService.getLastMove();
 
         if (lastMove) {
@@ -66,17 +67,17 @@ export class GameMoveService {
 
         const startingPlayer = await gameService.getStartingPlayer();
 
-        return startingPlayer.id === this.userId;
+        return startingPlayer?.id === this.userId;
     }
 
     protected async isMoveMadeToCorrectPlace(): Promise<boolean> {
-        const game = await getManager().findOneOrFail(GameEntity, this.gameId);
+        const game = await this.manager.findOneOrFail(GameEntity, this.gameId);
 
         return this.movePosition >= 0 && this.movePosition < game.size ** 2;
     }
 
     protected async isPositionToWhichMoveWillBeMadeIsFree(): Promise<boolean> {
-        const move = await getManager().findOne(MoveEntity, {
+        const move = await this.manager.findOne(MoveEntity, {
             where: {gameId: this.gameId, position: this.movePosition},
         });
         return !move;
