@@ -21,7 +21,7 @@ export class MoveEntity extends BaseEntity {
     @Column()
     public userId: string;
 
-    @ManyToOne(() => UserEntity, (user) => user.moves)
+    @ManyToOne(() => UserEntity)
     public user: UserEntity;
 
     @Column()

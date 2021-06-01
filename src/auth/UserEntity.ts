@@ -1,14 +1,4 @@
-import {
-    BaseEntity,
-    Column,
-    CreateDateColumn,
-    Entity,
-    OneToMany,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
-} from "typeorm";
-import {GameEntity} from "../game/core/data/GameEntity";
-import {MoveEntity} from "../game/core/data/MoveEntity";
+import {BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 
 @Entity({name: "user"})
 export class UserEntity extends BaseEntity {
@@ -26,15 +16,6 @@ export class UserEntity extends BaseEntity {
 
     @Column({type: "varchar", length: 255})
     public password: string;
-
-    @OneToMany(() => GameEntity, (game) => game.creator)
-    public gamesAsCreator: GameEntity[];
-
-    @OneToMany(() => GameEntity, (game) => game.oponent)
-    public gamesAsOponent: GameEntity[];
-
-    @OneToMany(() => MoveEntity, (move) => move.user)
-    public moves: MoveEntity[];
 
     @CreateDateColumn({type: "timestamp"})
     public createdAt: Date;
