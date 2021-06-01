@@ -8,6 +8,7 @@ import {HttpCode} from "../../common/HttpCode";
 import {GameFactory} from "../core/GameFactory";
 import {GameState} from "../core/GameState";
 import {GameSocketConfig} from "../socket/GameSocketConfig";
+import {IsolationLevel} from "../../common/IsolationLevel";
 
 export class GameHttpController {
     public static async createGame(req: Request, res: Response): Promise<void> {
@@ -17,7 +18,7 @@ export class GameHttpController {
     }
 
     public static async joinToGame(req: Request, res: Response): Promise<void> {
-        await getManager().transaction(async (manager: EntityManager) => {
+        await getManager().transaction(IsolationLevel.SERIALIZABLE, async (manager: EntityManager) => {
             const gameId = req.params.gameId;
             const gameService = new GameService(gameId, manager);
             await gameService.joinToGame(req.user.id);

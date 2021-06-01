@@ -1,6 +1,7 @@
 import {Server, Socket} from "socket.io";
 import {GameMoveService} from "../core/GameMoveService";
 import {EntityManager, getManager} from "typeorm";
+import {IsolationLevel} from "../../common/IsolationLevel";
 
 export class GameSocketRouter {
     public static registerEvents(server: Server, socket: Socket) {
@@ -16,7 +17,7 @@ export class GameSocketRouter {
 
         socket.on("move", async ({gameId, movePosition}) => {
             try {
-                await getManager().transaction(async (manager: EntityManager) => {
+                await getManager().transaction(IsolationLevel.SERIALIZABLE, async (manager: EntityManager) => {
                     const gameMoveService = new GameMoveService(gameId, socket.data.user.id, movePosition, manager);
                     await gameMoveService.move();
                 });
