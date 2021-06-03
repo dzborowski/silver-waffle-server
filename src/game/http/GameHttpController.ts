@@ -13,7 +13,7 @@ import {IsolationLevel} from "../../common/IsolationLevel";
 export class GameHttpController {
     public static async createGame(req: Request, res: Response): Promise<void> {
         const game = await GameFactory.crateGame(req.user.id, req.body.gameSize);
-        req.app.get("socket.io").to(GameSocketConfig.GENERAL_ROOM).emit("available-games-state-have-changed");
+        req.app.get("socket.io").to(GameSocketConfig.GENERAL_ROOM).emit("new-game-was-created");
         res.json(game);
     }
 
@@ -24,7 +24,7 @@ export class GameHttpController {
             await gameService.joinToGame(req.user.id);
         });
 
-        req.app.get("socket.io").to(GameSocketConfig.GENERAL_ROOM).emit("available-games-state-have-changed");
+        req.app.get("socket.io").to(GameSocketConfig.GENERAL_ROOM).emit("player-joined-to-available-game");
         res.end();
     }
 
